@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 type Wig = {
   id: number;
@@ -20,7 +20,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  // ✅ Load from localStorage when app starts
+  // ✅ Load cart from localStorage on app mount
   useEffect(() => {
     const storedCart = localStorage.getItem("royal_roots_cart");
     if (storedCart) {
@@ -28,7 +28,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // ✅ Save to localStorage every time cart changes
+  // ✅ Save cart to localStorage on every update
   useEffect(() => {
     localStorage.setItem("royal_roots_cart", JSON.stringify(cart));
   }, [cart]);
