@@ -2,9 +2,15 @@ import Head from "next/head";
 import { useCart } from "../context/CartContext";
 import { useEffect, useState } from "react";
 
+// minimal types for Peach Payments widget (enough to satisfy TS/ESLint)
+type PeachWidget = {
+  remove?: () => void;
+  options?: Record<string, unknown>;
+};
+
 declare global {
   interface Window {
-    wpwl?: any;
+    wpwl?: PeachWidget;
   }
 }
 
@@ -17,8 +23,12 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     // clean previous widget for HMR/dev
-    if (typeof window !== "undefined" && window.wpwl) {
-      try { window.wpwl.remove(); } catch {}
+    if (typeof window !== "undefined" && window.wpwl?.remove) {
+      try {
+        window.wpwl.remove();
+      } catch {
+        // ignore
+      }
     }
   }, []);
 
@@ -33,7 +43,7 @@ const CheckoutPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ total }),
       });
-      const data = await res.json();
+      const data: { id?: string } = await res.json();
 
       if (data.id) {
         setCheckoutId(data.id);
@@ -42,7 +52,6 @@ const CheckoutPage = () => {
         script.src = `https://sandbox.oppwa.com/v1/paymentWidgets.js?checkoutId=${data.id}`;
         script.async = true;
         script.onload = () => {
-          // optional config
           if (window.wpwl) {
             window.wpwl.options = {
               style: "plain", // or "card"
@@ -51,12 +60,15 @@ const CheckoutPage = () => {
         };
         document.body.appendChild(script);
       } else {
+        // eslint-disable-next-line no-console
         console.error("No checkout id:", data);
       }
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error("Checkout error:", err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

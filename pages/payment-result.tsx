@@ -5,6 +5,13 @@ import { useRouter } from "next/router";
 
 type Status = "loading" | "success" | "failed";
 
+type PeachStatusResponse = {
+  result?: {
+    code?: string;
+    description?: string;
+  };
+};
+
 const PaymentResult = () => {
   const router = useRouter();
   const { id } = router.query;
@@ -12,16 +19,16 @@ const PaymentResult = () => {
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
+    if (!router.isReady) return;
     if (!id || typeof id !== "string") return;
 
-    const checkStatus = async () => {
+    const checkStatus = async (): Promise<void> => {
       try {
-        const res = await fetch(`/api/payment-status?id=${id}`);
-        const data = await res.json();
+        const res = await fetch(`/api/payment-status?id=${encodeURIComponent(id)}`);
+        const data: PeachStatusResponse = await res.json();
 
-        // Peach result codes that start with '000.' are often success
-        const code = data?.result?.code as string | undefined;
-        const desc = data?.result?.description as string | undefined;
+        const code = data?.result?.code;
+        const desc = data?.result?.description;
 
         if (code && code.startsWith("000.")) {
           setStatus("success");
@@ -30,14 +37,14 @@ const PaymentResult = () => {
           setStatus("failed");
           setMsg(desc || "Payment failed.");
         }
-      } catch (e) {
+      } catch {
         setStatus("failed");
         setMsg("Could not verify payment.");
       }
     };
 
     checkStatus();
-  }, [id]);
+  }, [router.isReady, id]);
 
   return (
     <>
@@ -46,6 +53,7 @@ const PaymentResult = () => {
       </Head>
       <main className="min-h-screen px-6 py-12 max-w-md mx-auto text-center">
         {status === "loading" && <p>Checking your payment…</p>}
+
         {status === "success" && (
           <div className="space-y-4">
             <h1 className="text-3xl font-bold">🎉 Payment Successful</h1>
@@ -55,6 +63,7 @@ const PaymentResult = () => {
             </Link>
           </div>
         )}
+
         {status === "failed" && (
           <div className="space-y-4">
             <h1 className="text-3xl font-bold">❌ Payment Failed</h1>
