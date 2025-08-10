@@ -18,10 +18,7 @@ export default function ContactForm() {
       await sendEmail(formRef.current);
       setStatus("success");
       formRef.current.reset();
-    } catch (err: unknown) {
-      // keep ESLint happy and give yourself a breadcrumb in dev
-      // eslint-disable-next-line no-console
-      console.error("Contact form submit failed:", err);
+    } catch {
       setStatus("error");
     } finally {
       setIsSending(false);

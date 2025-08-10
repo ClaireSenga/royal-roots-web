@@ -1,23 +1,23 @@
 // pages/checkout.tsx
 import Head from "next/head";
-import { useEffect, useState, FormEvent } from "react";
 import { useCart } from "../context/CartContext";
+import { useEffect, useState } from "react";
 
-// Minimal type for Peach Payments widget on window
-type PeachWpwl = {
+// minimal types for Peach Payments widget (enough to satisfy TS/ESLint)
+type PeachWidget = {
   remove?: () => void;
   options?: Record<string, unknown>;
 };
 
 declare global {
   interface Window {
-    wpwl?: PeachWpwl;
+    wpwl?: PeachWidget;
   }
 }
 
-type CheckoutInitRes = { id?: string };
+type CheckoutCreateResponse = { id?: string };
 
-const CheckoutPage = () => {
+export default function CheckoutPage() {
   const { cart } = useCart();
   const [loading, setLoading] = useState(false);
   const [checkoutId, setCheckoutId] = useState<string | null>(null);
@@ -25,6 +25,7 @@ const CheckoutPage = () => {
   const total = cart.reduce((acc, item) => acc + item.price, 0);
 
   useEffect(() => {
+    // clean previous widget for HMR/dev
     if (typeof window !== "undefined" && window.wpwl?.remove) {
       try {
         window.wpwl.remove();
@@ -34,7 +35,7 @@ const CheckoutPage = () => {
     }
   }, []);
 
-  const handleCheckout = async (e: FormEvent<HTMLFormElement>) => {
+  const handleCheckout = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (cart.length === 0) return;
 
@@ -46,11 +47,11 @@ const CheckoutPage = () => {
         body: JSON.stringify({ total }),
       });
 
-      const data: CheckoutInitRes = await res.json();
+      const data = (await res.json()) as CheckoutCreateResponse;
 
       if (data.id) {
         setCheckoutId(data.id);
-
+        // load widget script dynamically
         const script = document.createElement("script");
         script.src = `https://sandbox.oppwa.com/v1/paymentWidgets.js?checkoutId=${data.id}`;
         script.async = true;
@@ -62,7 +63,7 @@ const CheckoutPage = () => {
         document.body.appendChild(script);
       } else {
         // eslint-disable-next-line no-console
-        console.error("No checkout id returned from /api/checkout:", data);
+        console.error("No checkout id returned from /api/checkout");
       }
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -86,6 +87,7 @@ const CheckoutPage = () => {
           <p className="text-center text-gray-600">Your cart is empty.</p>
         ) : (
           <>
+            {/* Order Summary */}
             <div className="bg-gray-100 p-4 rounded mb-6">
               <h3 className="font-semibold mb-2">🛍️ Order Summary</h3>
               {cart.map((item) => (
@@ -97,6 +99,7 @@ const CheckoutPage = () => {
               <div className="border-t pt-2 font-bold text-right">Total: R{total}</div>
             </div>
 
+            {/* Step 1: click to start payment -> shows widget */}
             {!checkoutId ? (
               <form onSubmit={handleCheckout} className="space-y-4">
                 <input name="name" placeholder="Your Full Name" required className="w-full border rounded-lg p-3" />
@@ -108,19 +111,14 @@ const CheckoutPage = () => {
                   className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition"
                   disabled={loading}
                 >
-                  {loading ? "Preparing payment..." : "Pay with Card ��"}
+                  {loading ? "Preparing payment..." : "Pay with Card 💳"}
                 </button>
               </form>
             ) : (
               <>
-                <form
-                  action="/payment-result"
-                  className="paymentWidgets mt-6"
-                  data-brands="VISA MASTER"
-                />
-                <p className="text-sm text-gray-600 mt-2">
-                  Secure payment powered by Peach Payments (sandbox).
-                </p>
+                {/* Step 2: Peach widget appears here after we load the script */}
+                <form action="/payment-result" className="paymentWidgets mt-6" data-brands="VISA MASTER" />
+                <p className="text-sm text-gray-600 mt-2">Secure payment powered by Peach Payments (sandbox).</p>
               </>
             )}
           </>
@@ -128,6 +126,4 @@ const CheckoutPage = () => {
       </main>
     </>
   );
-};
-
-export default CheckoutPage;
+}
