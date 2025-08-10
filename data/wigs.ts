@@ -1,25 +1,10 @@
-const wigs = [
-  {
-    id: 1,
-    name: "Body Wave 20”",
-    price: 1800,
-    image: "/images/bodywave.jpg",
-    description: "Premium 100% raw body wave wig, soft and long-lasting.",
-  },
-  {
-    id: 2,
-    name: "Straight 24”",
-    price: 2200,
-    image: "/images/straight.jpg",
-    description: "Silky straight virgin hair, 24-inch luxury finish.",
-  },
-  {
-    id: 3,
-    name: "Curly Bob 12”",
-    price: 1400,
-    image: "/images/curlybob.jpg",
-    description: "Short curly bob, bold and beautiful. Beginner friendly.",
-  },
+// data/wigs.ts
+export type Wig = { id: number; name: string; price: number; image: string };
+
+const wigs: Wig[] = [
+  { id: 1, name: '10" Bob Wig',  price: 1100, image: '/images/10-BobWig.webp' },
+  { id: 2, name: '12" Bob Wig',  price: 1300, image: '/images/12-BobWig.webp' },
+  { id: 3, name: '16" Burmese Curl Bundles', price: 800, image: '/images/16-BurmeseCurlWig.webp' },
 ];
 
 export default wigs;

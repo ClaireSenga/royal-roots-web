@@ -2,8 +2,137 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Optional: add your own base styles */
+/* Base styles */
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: Arial, sans-serif; /* changed from Inter to Arial */
   background-color: #fdfdfd;
+}
+
+/* Reset link styles */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:visited {
+  color: inherit;
+}
+
+/* fallback spacing for nav links */
+.nav-links > a {
+  margin-left: 2rem; /* ~ Tailwind space-x-8 */
+}
+.nav-links > a:first-child {
+  margin-left: 0;
+}
+
+/* Force navbar background color */
+nav {
+  background-color: #d1d5db !important; /* Tailwind's gray-300 */
+}
+
+/* makes sure the list actually renders in columns */
+.wig-grid {
+  display: grid !important;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .wig-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .wig-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Style for all "Add to Cart" buttons in WigCard */
+.wig-card-button {
+  width: 70%;              /* make it shorter than full width */
+  border-radius: 50px;     /* fully rounded corners */
+  padding: 0.75rem 1rem;   /* so width applies properly */
+}
+
+.wig-grid-section {
+  padding-top: 3rem; /* 48px space above the cards */
+  padding-bottom: 5rem; /* same as pb-20 in Tailwind */
+}
+
+/* ... your existing styles ... */
+
+/* Global button styling */
+button {
+  background-color: #F554B7;
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem; /* 12px top/bottom, 24px left/right */
+  border: none;
+  border-radius: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* Add space above the View All Wigs button */
+.view-all-btn-container {
+  padding-top: 2rem; /* Adjust as needed */
+}
+
+/* Hero heading styling */
+.hero-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center horizontally */
+  justify-content: center; /* center vertically */
+  height: 100%; /* take full height of hero section */
+  position: relative;
+  z-index: 20;
+}
+
+/* Global button style */
+.global-btn {
+  background-color: #ff4fb3;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.global-btn:hover {
+  background-color: #e0439f;
+}
+
+/* Padding between sections */
+.wig-grid-section {
+  padding-bottom: 3rem; /* space below cards */
+}
+
+.view-all-btn-container {
+  padding-top: 2rem; /* space above View All Wigs button */
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+#__next {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
