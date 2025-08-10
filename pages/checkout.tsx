@@ -1,28 +1,31 @@
+// pages/checkout.tsx
 import Head from "next/head";
+import { useEffect, useState, FormEvent } from "react";
 import { useCart } from "../context/CartContext";
-import { useEffect, useState } from "react";
 
-// minimal types for Peach Payments widget (enough to satisfy TS/ESLint)
-type PeachWidget = {
+// Minimal types for the Peach Payments widget on window
+type PeachWpwl = {
   remove?: () => void;
   options?: Record<string, unknown>;
 };
 
 declare global {
   interface Window {
-    wpwl?: PeachWidget;
+    wpwl?: PeachWpwl;
   }
 }
+
+type CheckoutInitRes = { id?: string };
 
 const CheckoutPage = () => {
   const { cart } = useCart();
   const [loading, setLoading] = useState(false);
   const [checkoutId, setCheckoutId] = useState<string | null>(null);
 
-  const total = cart.reduce((acc, item) => acc + item.price, 0);
+  const total: number = cart.reduce((acc, item) => acc + item.price, 0);
 
   useEffect(() => {
-    // clean previous widget for HMR/dev
+    // Clean previous widget (useful during HMR/dev navigations)
     if (typeof window !== "undefined" && window.wpwl?.remove) {
       try {
         window.wpwl.remove();
@@ -32,7 +35,7 @@ const CheckoutPage = () => {
     }
   }, []);
 
-  const handleCheckout = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCheckout = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (cart.length === 0) return;
 
@@ -43,25 +46,27 @@ const CheckoutPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ total }),
       });
-      const data: { id?: string } = await res.json();
+
+      const data: CheckoutInitRes = await res.json();
 
       if (data.id) {
         setCheckoutId(data.id);
-        // load widget script dynamically
+
+        // Load the Peach widget script dynamically
         const script = document.createElement("script");
         script.src = `https://sandbox.oppwa.com/v1/paymentWidgets.js?checkoutId=${data.id}`;
         script.async = true;
         script.onload = () => {
           if (window.wpwl) {
             window.wpwl.options = {
-              style: "plain", // or "card"
+              style: "plain",
             };
           }
         };
         document.body.appendChild(script);
       } else {
         // eslint-disable-next-line no-console
-        console.error("No checkout id:", data);
+        console.error("No checkout id returned from /api/checkout:", data);
       }
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -100,9 +105,25 @@ const CheckoutPage = () => {
             {/* Step 1: click to start payment -> shows widget */}
             {!checkoutId ? (
               <form onSubmit={handleCheckout} className="space-y-4">
-                <input name="name" placeholder="Your Full Name" required className="w-full border rounded-lg p-3" />
-                <input name="email" type="email" placeholder="Your Email" required className="w-full border rounded-lg p-3" />
-                <input name="address" placeholder="Delivery Address" required className="w-full border rounded-lg p-3" />
+                <input
+                  name="name"
+                  placeholder="Your Full Name"
+                  required
+                  className="w-full border rounded-lg p-3"
+                />
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="Your Email"
+                  required
+                  className="w-full border rounded-lg p-3"
+                />
+                <input
+                  name="address"
+                  placeholder="Delivery Address"
+                  required
+                  className="w-full border rounded-lg p-3"
+                />
 
                 <button
                   type="submit"
