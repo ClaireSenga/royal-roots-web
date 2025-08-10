@@ -1,41 +1,32 @@
 import Link from "next/link";
-import { useCart } from "../context/CartContext";
-import { FaShoppingCart } from "react-icons/fa";
+import Image from "next/image";
 
-const Navbar = () => {
-  const { cart } = useCart();
-
+export default function Navbar() {
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
+    <nav className="bg-gray-300 shadow-sm sticky top-0 z-50 w-full">
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold text-black">
-          👑 Royal Roots
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/Royal%20Roots%20Logo.png"
+            alt="Royal Roots Logo"
+            width={50}
+            height={50}
+            className="rounded-[38px]"
+            priority
+          />
         </Link>
 
-        {/* Nav Links */}
-        <div className="space-x-6 text-gray-700 font-medium flex items-center">
-          <Link href="/">Home</Link>
-          <Link href="/shop">Shop</Link>
-          <Link href="/contact">Contact</Link>
-
-          {/* Cart Button */}
-          <Link
-            href="/cart"
-            className="relative bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition flex items-center gap-2"
-          >
-            <FaShoppingCart />
-            View Cart
-            {cart.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full">
-                {cart.length}
-              </span>
-            )}
-          </Link>
+        {/* Links (flex + gap + space-x) */}
+        <div className="nav-links flex items-center gap-8 space-x-8 text-black font-medium">
+          <Link href="/" className="no-underline hover:text-gray-700">Home</Link>
+          <Link href="/shop" className="no-underline hover:text-gray-700">Shop</Link>
+          <Link href="/contact" className="no-underline hover:text-gray-700">Contact</Link>
+          <Link href="/cart" className="no-underline hover:text-gray-700">View Cart</Link>
         </div>
+
       </div>
     </nav>
   );
-};
-
-export default Navbar;
+}
