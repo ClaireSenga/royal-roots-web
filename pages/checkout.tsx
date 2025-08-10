@@ -3,7 +3,7 @@ import Head from "next/head";
 import { useEffect, useState, FormEvent } from "react";
 import { useCart } from "../context/CartContext";
 
-// Minimal types for the Peach Payments widget on window
+// Minimal type for Peach Payments widget on window
 type PeachWpwl = {
   remove?: () => void;
   options?: Record<string, unknown>;
@@ -22,10 +22,9 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(false);
   const [checkoutId, setCheckoutId] = useState<string | null>(null);
 
-  const total: number = cart.reduce((acc, item) => acc + item.price, 0);
+  const total = cart.reduce((acc, item) => acc + item.price, 0);
 
   useEffect(() => {
-    // Clean previous widget (useful during HMR/dev navigations)
     if (typeof window !== "undefined" && window.wpwl?.remove) {
       try {
         window.wpwl.remove();
@@ -52,15 +51,12 @@ const CheckoutPage = () => {
       if (data.id) {
         setCheckoutId(data.id);
 
-        // Load the Peach widget script dynamically
         const script = document.createElement("script");
         script.src = `https://sandbox.oppwa.com/v1/paymentWidgets.js?checkoutId=${data.id}`;
         script.async = true;
         script.onload = () => {
           if (window.wpwl) {
-            window.wpwl.options = {
-              style: "plain",
-            };
+            window.wpwl.options = { style: "plain" };
           }
         };
         document.body.appendChild(script);
@@ -90,7 +86,6 @@ const CheckoutPage = () => {
           <p className="text-center text-gray-600">Your cart is empty.</p>
         ) : (
           <>
-            {/* Order Summary */}
             <div className="bg-gray-100 p-4 rounded mb-6">
               <h3 className="font-semibold mb-2">🛍️ Order Summary</h3>
               {cart.map((item) => (
@@ -102,40 +97,22 @@ const CheckoutPage = () => {
               <div className="border-t pt-2 font-bold text-right">Total: R{total}</div>
             </div>
 
-            {/* Step 1: click to start payment -> shows widget */}
             {!checkoutId ? (
               <form onSubmit={handleCheckout} className="space-y-4">
-                <input
-                  name="name"
-                  placeholder="Your Full Name"
-                  required
-                  className="w-full border rounded-lg p-3"
-                />
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="Your Email"
-                  required
-                  className="w-full border rounded-lg p-3"
-                />
-                <input
-                  name="address"
-                  placeholder="Delivery Address"
-                  required
-                  className="w-full border rounded-lg p-3"
-                />
+                <input name="name" placeholder="Your Full Name" required className="w-full border rounded-lg p-3" />
+                <input name="email" type="email" placeholder="Your Email" required className="w-full border rounded-lg p-3" />
+                <input name="address" placeholder="Delivery Address" required className="w-full border rounded-lg p-3" />
 
                 <button
                   type="submit"
                   className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition"
                   disabled={loading}
                 >
-                  {loading ? "Preparing payment..." : "Pay with Card 💳"}
+                  {loading ? "Preparing payment..." : "Pay with Card ��"}
                 </button>
               </form>
             ) : (
               <>
-                {/* Step 2: Peach widget appears here after we load the script */}
                 <form
                   action="/payment-result"
                   className="paymentWidgets mt-6"

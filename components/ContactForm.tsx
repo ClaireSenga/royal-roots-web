@@ -1,10 +1,11 @@
+// components/ContactForm.tsx
 import { useRef, useState } from "react";
 import { sendEmail } from "../utils/emailService";
 
-const ContactForm = () => {
-  const formRef = useRef<HTMLFormElement | null>(null);
+export default function ContactForm() {
+  const formRef = useRef<HTMLFormElement>(null);
   const [isSending, setIsSending] = useState(false);
-  const [status, setStatus] = useState<"success" | "error" | "">("");
+  const [status, setStatus] = useState<"" | "success" | "error">("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,7 +18,10 @@ const ContactForm = () => {
       await sendEmail(formRef.current);
       setStatus("success");
       formRef.current.reset();
-    } catch (error) {
+    } catch (err: unknown) {
+      // keep ESLint happy and give yourself a breadcrumb in dev
+      // eslint-disable-next-line no-console
+      console.error("Contact form submit failed:", err);
       setStatus("error");
     } finally {
       setIsSending(false);
@@ -38,6 +42,7 @@ const ContactForm = () => {
         placeholder="Your Name"
         required
         className="w-full border border-gray-300 rounded px-4 py-2"
+        aria-label="Your Name"
       />
 
       <input
@@ -46,6 +51,7 @@ const ContactForm = () => {
         placeholder="Your Email"
         required
         className="w-full border border-gray-300 rounded px-4 py-2"
+        aria-label="Your Email"
       />
 
       <textarea
@@ -54,12 +60,14 @@ const ContactForm = () => {
         required
         rows={4}
         className="w-full border border-gray-300 rounded px-4 py-2"
+        aria-label="Your Message"
       />
 
       <button
         type="submit"
-        className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
+        className="global-btn w-full justify-center"
         disabled={isSending}
+        aria-busy={isSending}
       >
         {isSending ? "Sending..." : "Send Message"}
       </button>
@@ -72,6 +80,4 @@ const ContactForm = () => {
       )}
     </form>
   );
-};
-
-export default ContactForm;
+}
